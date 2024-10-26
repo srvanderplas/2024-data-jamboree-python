@@ -410,6 +410,8 @@ Since we know that our CSV was scraped in order, we can create an ID variable to
 Ideally, we'd have saved the page URL as a column, but we could do that by going back and rescraping, which would take forever (which is what I'd do in a real, not time-limited analysis), or we can just make this assumption that we haven't scrambled the data order. 
 
 ```{python}
+import pandas as pd
+
 athletes_df = pd.read_csv("athlete-addresses.csv")
 athletes_df = athletes_df.rename(columns={'Unnamed: 0':'id'})
 
@@ -430,18 +432,67 @@ full_athlete_data['bday'] = pd.to_datetime(full_athlete_data.Date_of_Birth)
 # Get specific columns -- declutter, not actually necessary
 athlete_data = full_athlete_data[["id", "type", "sport", "name", "Birth_Country", "Residence_Country", "Gender", "bday", "Age", "events"]].copy()
 
+
+months = ['January', 'February', 'March', 'April', 
+          'May', 'June', 'July', 'August', 
+          'September', 'October', 'November', 'December']
+          
 # Break bday down into separate components
 athlete_data['year'] = athlete_data['bday'].dt.year
-athlete_data['month'] = athlete_data['bday'].dt.month
+athlete_data['month'] = pd.Categorical(athlete_data['bday'].dt.month_name(), categories =  months)
 athlete_data['day'] = athlete_data['bday'].dt.day
 ```
 
-I'll confess I'm more used to the `decimal_date` function in R/lubridate, and I'm envisioning being able to just look at a density plot of each sport's birthdays over time (modulo year). 
+I'll confess I'm more used to the `decimal_date` function in R/lubridate, and I'm envisioning being able to just look at a density plot of each sport's birthdays over time (modulo year), since that should be enough precision for this assessment. 
 I didn't find a handy equivalent in pandas or the date/time libraries in Python, so let's build one...
 
 ```{python}
-def decimal_date(x):
-  ns_since_epoch =  pd.to_datetime(pd.to_datetime(x).value)
-  
+
+from datetime import datetime
+
+def decimal_date(date):
+    start_of_year = datetime(date.year, 1, 1)
+    end_of_year = datetime(date.year + 1, 1, 1)
+    days_in_year = (end_of_year - start_of_year).days
+    return date.year + (date - start_of_year).days / days_in_year
+
+# Decimal date
+athlete_data['ddate'] = [decimal_date(i) for i in athlete_data.bday]
+# Get fractional date - subtract off year
+athlete_data['fdate'] = athlete_data.ddate - athlete_data.year
 ```
+
+Then, we can start making plots (my favorite part!)
+
+```{python}
+import seaborn as sns
+import seaborn.objects as so
+
+p = (
+  so.Plot(athlete_data, y = "month")
+  .add(so.Bar(), so.Count())
+  .facet("type")
+  .scale()
+)
+p.show()
+```
+
+Ok, so if we just do a very crude measure of this hypothesis that Olympians are more likely to be born earlier in the year for team and individual sports, we see that those born in January-March are over-represented, but so are those born in August-September. 
+
+If we break things down by sport, we get a slightly murkier picture...
+
+```{python}
+
+p = (
+  so.Plot(athlete_data, y = "month")
+  .add(so.Bar(), so.Count())
+  .facet("sport").share(x=False)
+)
+p.show()
+```
+
+Soccer certainly seems to have fewer people born in the later months of the year; birthdays are relatively uniform across months for volleyball (which has fewer players). Basketball seems to have more summer birthdays, with fewer birthdays in the first few months of the year (though this may be spurious).
+
+Artistic gymnastics has relatively few participants, but October is the most common birthday month, and there are possibly more people with birthdays in the latter half of the year. There are notably more people with birthdays in months with 31 days relative to 30, which is one artifact of the rough method I've used here -- but it's interesting that it shows up in artistic gymnastics, which has relatively fewer participants.
+In swimming, there's a slight overrepresentation of birthdays in Jan/August (and this is over many more athletes). Track and Field athletes seem to be relatively uniformly distributed (accounting for days in the month), with possibly fewer people in the last 3 months of a year. 
 
