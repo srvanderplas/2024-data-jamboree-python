@@ -1,5 +1,7 @@
 ---
 title: "Data Jamboree -- Python"
+author: "Susan Vanderplas"
+date: "October 20, 2024"
 format: html
 execute: 
   engine: knitr
