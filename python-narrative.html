@@ -557,14 +557,18 @@ id         ...
 </div>
 </div>
 <p>Ok, so if we just do a very crude measure of this hypothesis that Olympians are more likely to be born earlier in the year for team and individual sports, we see that those born in January-March are over-represented, but so are those born in August-September.</p>
-<p>If we break things down by sport, we get a slightly murkier picture…</p>
+<p>Normalizing the counts by group helps make cross-group comparisons.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> (</span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  so.Plot(athlete_data, y <span class="op">=</span> <span class="st">"month"</span>)</span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  .add(so.Bar(), so.Count())</span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  .facet(<span class="st">"sport"</span>).share(x<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>p.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  .add(</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>    so.Bar(), </span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>    so.Hist(stat<span class="op">=</span><span class="st">'proportion'</span>, </span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>            common_norm<span class="op">=</span><span class="va">False</span>))</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>  .facet(<span class="st">"type"</span>)</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>  .scale()</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>p.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -573,8 +577,40 @@ id         ...
 </div>
 </div>
 </div>
+<p>If we break things down by sport, we get a slightly murkier picture…</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> (</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  so.Plot(athlete_data, y <span class="op">=</span> <span class="st">"month"</span>)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  .add(so.Bar(), so.Count())</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  .facet(<span class="st">"sport"</span>).share(x<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>p.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="python-narrative_files/figure-html/unnamed-chunk-25-5.png" class="img-fluid figure-img" width="614"></p>
+</figure>
+</div>
+</div>
+</div>
 <p>Soccer certainly seems to have fewer people born in the later months of the year; birthdays are relatively uniform across months for volleyball (which has fewer players). Basketball seems to have more summer birthdays, with fewer birthdays in the first few months of the year (though this may be spurious).</p>
 <p>Artistic gymnastics has relatively few participants, but October is the most common birthday month, and there are possibly more people with birthdays in the latter half of the year. There are notably more people with birthdays in months with 31 days relative to 30, which is one artifact of the rough method I’ve used here – but it’s interesting that it shows up in artistic gymnastics, which has relatively fewer participants. In swimming, there’s a slight overrepresentation of birthdays in Jan/August (and this is over many more athletes). Track and Field athletes seem to be relatively uniformly distributed (accounting for days in the month), with possibly fewer people in the last 3 months of a year.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> (</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  so.Plot(athlete_data, y <span class="op">=</span> <span class="st">"month"</span>)</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  .add(so.Bar(), so.Hist(stat<span class="op">=</span><span class="st">'proportion'</span>, common_norm<span class="op">=</span><span class="va">False</span>))</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>  .facet(<span class="st">"sport"</span>).share(x<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>  .layout(size<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>p.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="python-narrative_files/figure-html/unnamed-chunk-26-7.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+</div>
 </section>
 
 </main>

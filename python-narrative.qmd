@@ -481,6 +481,21 @@ p.show()
 
 Ok, so if we just do a very crude measure of this hypothesis that Olympians are more likely to be born earlier in the year for team and individual sports, we see that those born in January-March are over-represented, but so are those born in August-September. 
 
+Normalizing the counts by group helps make cross-group comparisons.
+
+```{python}
+p = (
+  so.Plot(athlete_data, y = "month")
+  .add(
+    so.Bar(), 
+    so.Hist(stat='proportion', 
+            common_norm=False))
+  .facet("type")
+  .scale()
+)
+p.show()
+```
+
 If we break things down by sport, we get a slightly murkier picture...
 
 ```{python}
@@ -498,3 +513,14 @@ Soccer certainly seems to have fewer people born in the later months of the year
 Artistic gymnastics has relatively few participants, but October is the most common birthday month, and there are possibly more people with birthdays in the latter half of the year. There are notably more people with birthdays in months with 31 days relative to 30, which is one artifact of the rough method I've used here -- but it's interesting that it shows up in artistic gymnastics, which has relatively fewer participants.
 In swimming, there's a slight overrepresentation of birthdays in Jan/August (and this is over many more athletes). Track and Field athletes seem to be relatively uniformly distributed (accounting for days in the month), with possibly fewer people in the last 3 months of a year. 
 
+```{python}
+
+p = (
+  so.Plot(athlete_data, y = "month")
+  .add(so.Bar(), so.Hist(stat='proportion', common_norm=False))
+  .facet("sport").share(x=False)
+  .layout(size=(8,4))
+)
+p.show()
+
+```
